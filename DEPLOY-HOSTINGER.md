@@ -82,3 +82,8 @@ Dashboard client kini memakai shop.css dan shop.js, dengan katalog di server/cat
 Tidak diperlukan migrasi database untuk versi ini. Keranjang dan draf alamat tersimpan pada sesi akun; keluar akun atau sesi berakhir menghapusnya. Checkout membuat ringkasan permintaan dan draf WhatsApp untuk dikirim client ke DWA. Belum ada payment gateway, penagihan otomatis, nomor pesanan permanen, atau status pembayaran otomatis. Pilihan pembayaran adalah preferensi yang perlu dikonfirmasi tim DWA. Ongkir belum termasuk subtotal.
 Hanya PT Perorangan memiliki harga tetap; layanan lain memerlukan penawaran. Jangan menyimpan data kartu atau kredensial pembayaran di konfigurasi. Konfigurasi privat dwa-private/config.php tetap di luar public_html.
 
+
+## Login kata sandi (pembaruan)
+Deploy api/auth.php, server/bootstrap.php, server/passwords.php, portal.php, portal.js, dan privasi.html bersama-sama. Tabel dwa_credentials dibuat otomatis pada permintaan autentikasi pertama dengan CREATE TABLE IF NOT EXISTS. User database membutuhkan izin CREATE. Jika izin tersebut tidak tersedia, jalankan blok CREATE TABLE dwa_credentials dari setup/schema.sql melalui phpMyAdmin.
+Akun lama tidak dihapus. Pilih Lupa kata sandi / akun lama, verifikasi OTP email, lalu buat kata sandi. Login berikutnya memakai email atau WhatsApp terdaftar dan kata sandi tanpa OTP. Pendaftaran baru wajib kata sandi dan OTP. Reset sandi membatalkan sesi login lama. OTP versi lama tanpa konteks pendaftaran/reset tidak dapat dipakai setelah pembaruan.
+

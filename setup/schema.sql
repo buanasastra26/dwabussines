@@ -27,3 +27,10 @@ CREATE TABLE IF NOT EXISTS dwa_limits (
  expires_at BIGINT NOT NULL,
  INDEX limits_expiry (expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS dwa_credentials (
+ user_id BIGINT UNSIGNED PRIMARY KEY,
+ password_hash VARCHAR(255) NOT NULL,
+ session_version CHAR(64) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

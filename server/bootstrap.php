@@ -47,6 +47,15 @@ function current_user(): ?array {
     if (!isset($_SESSION['user']) || time() > ($_SESSION['expires']??0)) {
         unset($_SESSION['user'],$_SESSION['expires']);return null;
     }
+    // Password reset invalidates all previously authenticated sessions.
+    if (!isset($_SESSION['auth_version'])) {unset($_SESSION['user'],$_SESSION['shop_cart'],$_SESSION['checkout_draft']);return null;}
+    try {
+        $q=db()->prepare('SELECT session_version FROM dwa_credentials WHERE user_id=?');
+        $q->execute([$_SESSION['user']['id']]);$version=$q->fetchColumn();
+        if (!is_string($version) || !hash_equals($version,$_SESSION['auth_version'])) {
+            unset($_SESSION['user'],$_SESSION['auth_version'],$_SESSION['shop_cart'],$_SESSION['checkout_draft']);return null;
+        }
+    } catch(Throwable $error) {return null;}
     return $_SESSION['user'];
 }
 function require_user(): array {
