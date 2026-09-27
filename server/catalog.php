@@ -1,5 +1,5 @@
 <?php
-function catalog(): array {
+function catalog(bool $includeDrafts=false): array {
     $products = [
         'pt-perorangan'=>['name'=>'PT Perorangan','category'=>'Legalitas','icon'=>'building','price'=>1000000,'old_price'=>2500000,'label'=>'Paket lengkap untuk UMKM','description'=>'Layanan pendampingan pendirian PT Perorangan untuk pelaku UMKM yang ingin menyiapkan legalitas dan identitas usahanya. Kesesuaian usaha dan dokumen dikonfirmasi bersama tim DWA.','includes'=>['NPWP','NIB KBLI Standar','10 KBLI Usaha','SKT','SK Kementerian','Surat Permohonan Buka Rekening'],'bonuses'=>['Company Profile (Compro)','Landing Page','Stempel PT','Kartu Nama Direktur']],
         'pt-umum'=>['name'=>'PT Umum','category'=>'Legalitas','icon'=>'building','price'=>null,'label'=>'Pendirian badan usaha','description'=>'Pendampingan persiapan pendirian PT untuk kebutuhan usaha Anda. Tim DWA membantu membahas dokumen, ruang lingkup, dan penawaran sebelum pemesanan.'],
@@ -13,6 +13,14 @@ function catalog(): array {
     ];
     require_once __DIR__.'/commerce.php';ensure_commerce();
     foreach(db()->query('SELECT product_id,price,old_price FROM dwa_prices')->fetchAll() as $row){if(isset($products[$row['product_id']])){$products[$row['product_id']]['price']=$row['price']===null?null:(int)$row['price'];unset($products[$row['product_id']]['old_price']);if($row['old_price']!==null && $row['price']!==null && $row['old_price']>$row['price'])$products[$row['product_id']]['old_price']=(int)$row['old_price'];}}
+    foreach(db()->query('SELECT product_id,data_json,published,photo_mime FROM dwa_products')->fetchAll() as $row){
+        $data=json_decode($row['data_json'],true);if(!is_array($data))continue;
+        $id=$row['product_id'];$products[$id]=array_replace($products[$id]??[], $data);
+        $products[$id]['published']=(bool)$row['published'];
+        if($row['photo_mime'])$products[$id]['image']='product-image.php?id='.rawurlencode($id);
+        if(!$includeDrafts&&!$row['published'])unset($products[$id]);
+    }
+    foreach(db()->query('SELECT product_id,price,old_price FROM dwa_prices')->fetchAll() as $row){if(isset($products[$row['product_id']])){$products[$row['product_id']]['price']=$row['price']===null?null:(int)$row['price'];unset($products[$row['product_id']]['old_price']);if($row['old_price']!==null&&$row['price']!==null&&$row['old_price']>$row['price'])$products[$row['product_id']]['old_price']=(int)$row['old_price'];}}
     return $products;
 }
 function shop_icon(string $name): string {
