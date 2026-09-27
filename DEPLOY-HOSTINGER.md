@@ -76,3 +76,9 @@ Jika email tidak masuk: periksa spam, setelan SMTP, log PHP generik `DWA: OTP de
 - Cadangkan database sesuai kebijakan usaha Anda. Halaman `privasi.html` menjelaskan penggunaan data yang diimplementasikan dan perlu ditinjau pemilik usaha sebelum peluncuran.
 
 PHPMailer: https://github.com/PHPMailer/PHPMailer/releases/tag/v7.1.1 — lisensi tersedia di `vendor/phpmailer/LICENSE`.
+
+## Dashboard katalog dan checkout
+Dashboard client kini memakai shop.css dan shop.js, dengan katalog di server/catalog.php. Deploy seluruh file pada branch main, termasuk product.php, cart.php, checkout.php, api/cart.php, server/shop-layout.php, dan assets/dashboard-background.png.
+Tidak diperlukan migrasi database untuk versi ini. Keranjang dan draf alamat tersimpan pada sesi akun; keluar akun atau sesi berakhir menghapusnya. Checkout membuat ringkasan permintaan dan draf WhatsApp untuk dikirim client ke DWA. Belum ada payment gateway, penagihan otomatis, nomor pesanan permanen, atau status pembayaran otomatis. Pilihan pembayaran adalah preferensi yang perlu dikonfirmasi tim DWA. Ongkir belum termasuk subtotal.
+Hanya PT Perorangan memiliki harga tetap; layanan lain memerlukan penawaran. Jangan menyimpan data kartu atau kredensial pembayaran di konfigurasi. Konfigurasi privat dwa-private/config.php tetap di luar public_html.
+

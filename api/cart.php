@@ -1,0 +1,20 @@
+<?php
+require __DIR__.'/../server/bootstrap.php';
+require __DIR__.'/../server/catalog.php';
+if(!current_user()) json_out(['error'=>'Silakan masuk kembali.'],401);
+if($_SERVER['REQUEST_METHOD']!=='POST') json_out(['error'=>'Metode tidak didukung.'],405);
+if(!hash_equals($_SESSION['csrf'],$_SERVER['HTTP_X_CSRF_TOKEN']??'')) json_out(['error'=>'Sesi berubah. Muat ulang halaman.'],403);
+$raw=file_get_contents('php://input',false,null,0,4097);
+if(strlen($raw)>4096) json_out(['error'=>'Permintaan terlalu besar.'],413);
+$body=json_decode($raw,true);
+if(!is_array($body)) json_out(['error'=>'Permintaan tidak valid.'],400);
+$id=$body['id']??null;$action=$body['action']??null;$products=catalog();
+if(!is_string($id)||!isset($products[$id])||!is_int($products[$id]['price'])) json_out(['error'=>'Produk ini perlu konsultasi terlebih dahulu.'],400);
+$current=(int)($_SESSION['shop_cart'][$id]??0);
+if($action==='add') $qty=$current+1;
+elseif($action==='set' && isset($body['qty']) && is_int($body['qty'])) $qty=$body['qty'];
+else json_out(['error'=>'Permintaan tidak valid.'],400);
+if($qty<0||$qty>10) json_out(['error'=>'Maksimal 10 paket per produk.'],400);
+if($qty===0) unset($_SESSION['shop_cart'][$id]);else $_SESSION['shop_cart'][$id]=$qty;
+unset($_SESSION['checkout_draft']);
+json_out(['ok'=>true,'count'=>array_sum($_SESSION['shop_cart']??[])]);
