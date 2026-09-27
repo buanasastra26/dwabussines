@@ -18,7 +18,7 @@ try {
   $valid=password_verify($password,$user['password_hash']??$dummy);
   if(!$user||!$user['password_hash']||!$valid)json_out(['error'=>'Email/WhatsApp atau kata sandi salah. Akun lama: gunakan Lupa kata sandi untuk membuat sandi.'],400);
   if(password_needs_rehash($user['password_hash'],PASSWORD_DEFAULT)){$q=db()->prepare('UPDATE dwa_credentials SET password_hash=? WHERE user_id=? AND password_hash=?');$q->execute([password_hash($password,PASSWORD_DEFAULT),$user['id'],$user['password_hash']]);}
-  start_password_session($user,$user['session_version']);json_out(['ok'=>true,'redirect'=>'dashboard.php']);
+  start_password_session($user,$user['session_version']);json_out(['ok'=>true,'redirect'=>($data['destination']??'')==='admin' && strtolower($user['email'])==='ciptaniagateramini@gmail.com'?'kelola-dwa.php':'dashboard.php']);
  }
  if($action==='request'){
   if(!configured())json_out(['error'=>'Email verifikasi belum tersedia. Hubungi DWA.'],503);

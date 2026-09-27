@@ -1,6 +1,6 @@
 <?php
 function catalog(): array {
-    return [
+    $products = [
         'pt-perorangan'=>['name'=>'PT Perorangan','category'=>'Legalitas','icon'=>'building','price'=>1000000,'old_price'=>2500000,'label'=>'Paket lengkap untuk UMKM','description'=>'Layanan pendampingan pendirian PT Perorangan untuk pelaku UMKM yang ingin menyiapkan legalitas dan identitas usahanya. Kesesuaian usaha dan dokumen dikonfirmasi bersama tim DWA.','includes'=>['NPWP','NIB KBLI Standar','10 KBLI Usaha','SKT','SK Kementerian','Surat Permohonan Buka Rekening'],'bonuses'=>['Company Profile (Compro)','Landing Page','Stempel PT','Kartu Nama Direktur']],
         'pt-umum'=>['name'=>'PT Umum','category'=>'Legalitas','icon'=>'building','price'=>null,'label'=>'Pendirian badan usaha','description'=>'Pendampingan persiapan pendirian PT untuk kebutuhan usaha Anda. Tim DWA membantu membahas dokumen, ruang lingkup, dan penawaran sebelum pemesanan.'],
         'cv'=>['name'=>'CV','category'=>'Legalitas','icon'=>'document','price'=>null,'label'=>'Pendirian badan usaha','description'=>'Layanan pendampingan pendirian CV. Konsultasikan rencana usaha dan kebutuhan dokumen untuk memperoleh rincian layanan serta penawaran.'],
@@ -11,6 +11,9 @@ function catalog(): array {
         'aplikasi'=>['name'=>'Aplikasi','category'=>'Digital','icon'=>'phone','price'=>null,'label'=>'Layanan dalam genggaman','description'=>'Pengembangan aplikasi untuk kebutuhan usaha Anda. Platform, fitur, hasil pekerjaan, dan penawaran disepakati setelah konsultasi.'],
         'software'=>['name'=>'Software Manajemen','category'=>'Digital','icon'=>'grid','price'=>null,'label'=>'Kelola usaha lebih terarah','description'=>'Solusi perangkat lunak sesuai alur operasional usaha. Modul, integrasi, dan ruang lingkup dibahas sebelum pemesanan.'],
     ];
+    require_once __DIR__.'/commerce.php';ensure_commerce();
+    foreach(db()->query('SELECT product_id,price,old_price FROM dwa_prices')->fetchAll() as $row){if(isset($products[$row['product_id']])){$products[$row['product_id']]['price']=$row['price']===null?null:(int)$row['price'];unset($products[$row['product_id']]['old_price']);if($row['old_price']!==null && $row['price']!==null && $row['old_price']>$row['price'])$products[$row['product_id']]['old_price']=(int)$row['old_price'];}}
+    return $products;
 }
 function shop_icon(string $name): string {
     $paths=[

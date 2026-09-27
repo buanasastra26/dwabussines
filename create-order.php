@@ -1,0 +1,9 @@
+<?php
+require __DIR__.'/server/bootstrap.php';$user=require_user();require __DIR__.'/server/commerce.php';require __DIR__.'/server/catalog.php';check_admin_post();ensure_commerce();
+$key=$_POST['checkout_key']??'';if(!is_string($key)||!preg_match('/^[a-f0-9]{64}$/D',$key)){http_response_code(400);exit('Checkout tidak valid.');}
+$q=db()->prepare('SELECT id FROM dwa_orders WHERE checkout_key=? AND user_id=?');$q->execute([$key,$user['id']]);if($id=$q->fetchColumn()){header('Location: orders.php?id='.$id);exit;}
+$draft=$_SESSION['checkout_draft']??null;$quote=$_SESSION['checkout_quote']??null;$cart=shop_cart();
+if(!$draft||!$cart||!$quote||!hash_equals($quote['key'],$key)){http_response_code(409);exit('Draf checkout berakhir. Kembali ke keranjang dan ulangi checkout.');}
+$items=[];$total=0;foreach($cart as $id=>$row){$p=$row['product'];$items[]=['id'=>$id,'name'=>$p['name'],'price'=>$p['price'],'qty'=>$row['qty'],'includes'=>$p['includes']??[],'bonuses'=>$p['bonuses']??[]];$total+=$p['price']*$row['qty'];}
+if(!hash_equals($quote['hash'],hash('sha256',json_encode([$items,$draft])))){unset($_SESSION['checkout_quote']);http_response_code(409);exit('Harga atau rincian checkout berubah. Kembali ke checkout untuk meninjau ulang.');}
+try{$q=db()->prepare('INSERT INTO dwa_orders(order_no,user_id,checkout_key,customer_json,items_json,subtotal,payment_method) VALUES (?,?,?,?,?,?,?)');$q->execute(['DWA-'.date('Ymd').'-'.strtoupper(bin2hex(random_bytes(5))),$user['id'],$key,json_encode($draft,JSON_UNESCAPED_UNICODE),json_encode($items,JSON_UNESCAPED_UNICODE),$total,$draft['payment']]);$id=db()->lastInsertId();unset($_SESSION['shop_cart'],$_SESSION['checkout_draft'],$_SESSION['checkout_quote']);header('Location: orders.php?id='.$id);exit;}catch(Throwable $e){error_log('DWA: order creation failed');http_response_code(503);exit('Pesanan belum tersimpan. Silakan coba kembali; keranjang Anda tetap tersedia.');}
