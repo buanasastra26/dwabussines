@@ -7,7 +7,7 @@ try {
  if(!hash_equals($_SESSION['csrf'],$_SERVER['HTTP_X_CSRF_TOKEN']??''))json_out(['error'=>'Sesi berakhir. Muat ulang halaman.'],403);
  foreach($data as $key=>$value)if($key==='consent'?!is_bool($value):!is_string($value))json_out(['error'=>'Data tidak valid.'],422);
  $action=$data['action']??'';
- if($action==='logout'){$_SESSION=[];session_destroy();setcookie(session_name(),'', ['expires'=>time()-3600,'path'=>'/','secure'=>true,'httponly'=>true,'samesite'=>'Lax']);json_out(['ok'=>true]);}
+ if($action==='logout'){require_once __DIR__.'/../server/commerce.php';sync_cart_activity([]);$_SESSION=[];session_destroy();setcookie(session_name(),'', ['expires'=>time()-3600,'path'=>'/','secure'=>true,'httponly'=>true,'samesite'=>'Lax']);json_out(['ok'=>true]);}
  ensure_credentials();$ip=$_SERVER['REMOTE_ADDR']??'unknown';
  if($action==='login'){
   $identifier=strtolower(trim($data['identifier']??''));$password=$data['password']??'';

@@ -16,5 +16,6 @@ elseif($action==='set' && isset($body['qty']) && is_int($body['qty'])) $qty=$bod
 else json_out(['error'=>'Permintaan tidak valid.'],400);
 if($qty<0||$qty>10) json_out(['error'=>'Maksimal 10 paket per produk.'],400);
 if($qty===0) unset($_SESSION['shop_cart'][$id]);else $_SESSION['shop_cart'][$id]=$qty;
+sync_cart_activity($_SESSION['shop_cart']??[]);
 unset($_SESSION['checkout_draft']);
 json_out(['ok'=>true,'count'=>array_sum($_SESSION['shop_cart']??[])]);

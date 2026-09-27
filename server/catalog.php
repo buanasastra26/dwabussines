@@ -40,6 +40,7 @@ function shop_icon(string $name): string {
 function shop_cart(): array {
     $products=catalog();$rows=[];
     foreach (($_SESSION['shop_cart']??[]) as $id=>$qty) if(isset($products[$id]) && is_int($products[$id]['price']) && is_int($qty) && $qty>0 && $qty<=10) $rows[$id]=['product'=>$products[$id],'qty'=>$qty];
+    sync_cart_activity(array_map(static fn($row)=>$row['qty'],$rows));
     return $rows;
 }
 function rupiah(int $amount): string {return 'Rp'.number_format($amount,0,',','.');}
