@@ -1,0 +1,6 @@
+/config.local.php
+/setup/config.local.php
+/.env
+/.env.*
+*.log
+/.test-runtime/

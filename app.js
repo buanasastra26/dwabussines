@@ -31,3 +31,5 @@ document.querySelector('#consultation-form')?.addEventListener('submit', event =
 });
 document.querySelector('#name')?.addEventListener('input', event => event.target.setCustomValidity(''));
 document.querySelector('#year').textContent = new Date().getFullYear();
+
+window.addEventListener('pageshow', event => { if (event.persisted && location.pathname.endsWith('/layanan.php')) location.reload(); });
